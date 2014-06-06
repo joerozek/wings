@@ -1,0 +1,14 @@
+{
+  "name": "wing",
+  "version": "0.1.1",
+  "authors": [
+    "Joe <jrozek@gmail.com>"
+  ],
+  "description": "Fly the plane don't crash",
+  "main": "main.js",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "gyro.js":"1.0.0"
+  }
+}
