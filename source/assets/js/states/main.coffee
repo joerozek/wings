@@ -14,7 +14,6 @@ class MainState extends Phaser.State
   create: ->
     @gameEnded = false
 
-
     @game.physics.startSystem(Phaser.Physics.P2JS)
     @game.physics.p2.setImpactEvents(true)
 
@@ -29,8 +28,12 @@ class MainState extends Phaser.State
     @stalagmite = @_createRockGroup('stalagmite')
     @stalactite = @_createRockGroup('stalactite')
 
-    @plane = game.add.sprite(100, 200, 'plane')
+    @plane = @game.add.sprite(100, 200, 'plane')
+    @plane.events.onOutOfBounds.add(@_gameOver, @)
     @game.physics.p2.enable(@plane)
+    @plane.body.clearShapes()
+    @plane.checkWorldBounds = true
+    @plane.body.loadPolygon('physicsData', 'planeRed1')
     @plane.body.collideWorldBounds = false
     @plane.animations.add('fly')
     @plane.animations.play('fly', 15, true)
@@ -58,18 +61,17 @@ class MainState extends Phaser.State
   render:() ->
     if @gameEnded and @game.input.pointer1.isDown then @_restart()
 
-#    @game.debug.body(@plane)
-#    if @rock then @game.debug.renderPhysicsBody(@rock.body)
-#    if @rock then @game.debug.body(@rock)
-
   _hideGetReady:() ->
     if gyro.getFeatures().length > 0
-      gyro.frequency = 16
+      gyro.frequency = 10
       gyro.startTracking (o) =>
         if (o.x > -5.5)
           @_up()
         else
           @_down()
+    else
+      @gamOver.visible = true;
+
     @game.time.events.remove(@readyTimer)
     @rockTimer = @game.time.events.loop(1500, @_addNewRockObsticle, @)
     @getReady.visible = false
@@ -149,10 +151,10 @@ class MainState extends Phaser.State
 
   _down:() ->
 #    @plane.body.velocity.x = -75
-    @plane.body.velocity.y = -120
-    @plane.angle = -10
+    @plane.body.velocity.y = -150
+    @plane.body.angle = -10
 
   _up:() ->
 #    @plane.body.velocity.x = 75
-    @plane.body.velocity.y = 120
-    @plane.angle = 10
+    @plane.body.velocity.y = 150
+    @plane.body.angle = 10
