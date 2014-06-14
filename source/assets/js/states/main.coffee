@@ -19,7 +19,7 @@ class MainState extends Phaser.State
     @score = 0
     @scorableRocks = []
     @gameEnded = false
-    gyro.frequency = 10
+    gyro.frequency = 5
 
     @game.physics.startSystem(Phaser.Physics.P2JS)
     @game.physics.p2.setImpactEvents(true)
@@ -66,11 +66,11 @@ class MainState extends Phaser.State
       @game.stage.scale.refresh()
 
   update: ->
-    @background.tilePosition.x += -1
-    @foreground.tilePosition.x += -2.75
-    @foregroundTop.tilePosition.x += 2.75
+    @background.tilePosition.x += -2
+    @foreground.tilePosition.x += -6.75
+    @foregroundTop.tilePosition.x += 6.75
     @_updateScore()
-    @_watchForKeyPress()
+#    @_watchForKeyPress()
 
   render:() ->
     if @gameEnded and @game.input.pointer1.isDown then @_restart()
@@ -93,7 +93,7 @@ class MainState extends Phaser.State
           @_up()
       gyro.calibrate()
     @game.time.events.remove(@readyTimer)
-    @rockTimer = @game.time.events.loop(1500, @_addNewRockObsticle, @)
+    @rockTimer = @game.time.events.loop(500, @_addNewRockObsticle, @)
     @getReady.visible = false
     @countDown.visible = false
 
@@ -132,7 +132,7 @@ class MainState extends Phaser.State
     rock.body.loadPolygon('physicsData', physicsData)
     rock.body.setCollisionGroup @rockCollisionGroup
     rock.body.collides(@planeCollisionGroup)
-    rock.body.velocity.x = -130
+    rock.body.velocity.x = -390
     rock.body.gravity = 0
     @scorableRocks.push rock
 
@@ -141,13 +141,13 @@ class MainState extends Phaser.State
     group = {}
     physicsData = ""
     if top
-      y = Math.random()* 135
+      y = Math.random()* (105 - 30) + 30
       x=850
       group = @stalagmite
       physicsData = "rockGrassDown"
     else
       x=850
-      y = Math.random()* (480 - 345) + 345
+      y = Math.random()* (450 - 375) + 375
       group = @stalactite
       physicsData = "rockGrass"
     @_addRock(x, y, group, physicsData)
@@ -183,11 +183,11 @@ class MainState extends Phaser.State
 
   _up:() ->
 #    @plane.body.velocity.x = -75
-    @plane.body.velocity.y = -150
+    @plane.body.velocity.y = -200
     @plane.body.angle = -10
 
 
    _down:() ->
 #    @plane.body.velocity.x = 75
-    @plane.body.velocity.y = 150
+    @plane.body.velocity.y = 200
     @plane.body.angle = 10

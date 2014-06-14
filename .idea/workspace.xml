@@ -49,8 +49,8 @@
       <file leaf-file-name="main.coffee" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/source/assets/js/states/main.coffee">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.017758047" vertical-offset="1440" max-vertical-offset="3168">
-              <caret line="91" column="44" selection-start-line="91" selection-start-column="44" selection-end-line="91" selection-end-column="44" />
+            <state vertical-scroll-proportion="-0.45615983" vertical-offset="1931" max-vertical-offset="3168">
+              <caret line="95" column="43" selection-start-line="95" selection-start-column="43" selection-end-line="95" selection-end-column="43" />
               <folding />
             </state>
           </provider>
@@ -814,8 +814,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/source/assets/js/states/main.coffee">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.017758047" vertical-offset="1440" max-vertical-offset="3168">
-          <caret line="91" column="44" selection-start-line="91" selection-start-column="44" selection-end-line="91" selection-end-column="44" />
+        <state vertical-scroll-proportion="-0.45615983" vertical-offset="1931" max-vertical-offset="3168">
+          <caret line="95" column="43" selection-start-line="95" selection-start-column="43" selection-end-line="95" selection-end-column="43" />
           <folding />
         </state>
       </provider>
