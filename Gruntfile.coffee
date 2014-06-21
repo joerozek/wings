@@ -50,7 +50,7 @@ module.exports = (grunt) ->
     coffee:
       build:
         options:
-          bare: true
+          bare: false
           join: true
         expand: true
         files:

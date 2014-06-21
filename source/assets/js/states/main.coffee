@@ -12,6 +12,7 @@ class MainState extends Phaser.State
     @game.load.image('stalagmite', 'assets/images/rockGrassDown.png')
     @game.load.physics('physicsData', 'assets/images/package.json')
     @game.load.bitmapFont('numbers', 'assets/fonts/numbers.png', 'assets/fonts/numbers.xml')
+    @game.load.bitmapFont('alphabet', 'assets/fonts/alphabet.png', 'assets/fonts/alphabet.xml')
 
 
   create: ->
@@ -19,7 +20,8 @@ class MainState extends Phaser.State
     @score = 0
     @scorableRocks = []
     @gameEnded = false
-    gyro.frequency = 5
+    gyro.frequency = 15
+    @highScore = window.localStorage.getItem("highScore") || 0
 
     @game.physics.startSystem(Phaser.Physics.P2JS)
     @game.physics.p2.setImpactEvents(true)
@@ -57,9 +59,11 @@ class MainState extends Phaser.State
     @foreground = @game.add.tileSprite 0, 409, 808, 71, 'foreground'
     @foregroundTop = @game.add.tileSprite 800, 71, 808, 71, 'foreground'
     @foregroundTop.angle = 180
-    @scoreText =  @game.add.bitmapText(680, 20, 'numbers',"#{@score}", 48)
-    @debugText = @game.add.text(5, 5, "no gyro yet")
-    @debugText2 = @game.add.text(5, 35, "no gyro yet")
+    @scoreText =  @game.add.bitmapText(730, 15, 'numbers',"#{@score}", 30)
+    @highScoreLabel =  @game.add.bitmapText(20, 15, 'alphabet',"HIGH SCORE", 32)
+    @highScoreText =  @game.add.bitmapText(220, 17, 'numbers',"#{@highScore}", 30)
+#    @debugText = @game.add.text(5, 5, "no gyro yet")
+#    @debugText2 = @game.add.text(5, 35, "no gyro yet")
     if @game.scaleToFit
       @game.stage.scaleMode = Phaser.StageScaleMode.SHOW_ALL
       @game.stage.scale.setShowAll()
@@ -69,8 +73,8 @@ class MainState extends Phaser.State
     @background.tilePosition.x += -2
     @foreground.tilePosition.x += -6.75
     @foregroundTop.tilePosition.x += 6.75
-    @_updateScore()
-#    @_watchForKeyPress()
+    @_updateScore() unless @gameEnded
+    @_watchForKeyPress()
 
   render:() ->
     if @gameEnded and @game.input.pointer1.isDown then @_restart()
@@ -83,15 +87,16 @@ class MainState extends Phaser.State
 
   _hideGetReady:() ->
     if gyro.getFeatures().length > 0
-      gyro.stopTracking()
+      gyro.calibrate()
       gyro.startTracking (o) =>
-        @debugText.setText("x: #{o.x.toFixed(1)}, y: #{o.y.toFixed(1)} z: #{o.z.toFixed(1)}" )
-        @debugText2.setText("alpha: #{o.alpha.toFixed(1)}, beta: #{o.beta.toFixed(1)} gamma: #{o.gamma.toFixed(1)}" )
+        @debugText.setText("gamma: #{o.gamma.toFixed(1)}")
+#        @debugText.setText("x: #{o.x.toFixed(1)}, y: #{o.y.toFixed(1)} z: #{o.z.toFixed(1)}" )
+#        @debugText2.setText("alpha: #{o.alpha.toFixed(1)}, beta: #{o.beta.toFixed(1)} gamma: #{o.gamma.toFixed(1)}" )
         if o.gamma <= 0 and o.gamma > -20
           @_down()
         else if o.gamma > 0 and o.gamma < 20
           @_up()
-      gyro.calibrate()
+
     @game.time.events.remove(@readyTimer)
     @rockTimer = @game.time.events.loop(500, @_addNewRockObsticle, @)
     @getReady.visible = false
@@ -121,6 +126,8 @@ class MainState extends Phaser.State
       if rock.body.x < @plane.body.x
         @score++
         @scoreText.setText "#{@score}"
+        @highScore = @score unless @highScore >= @score
+        @highScoreText.setText "#{@highScore}"
         @scorableRocks.splice(i, 1)
       else
         i++
@@ -137,23 +144,39 @@ class MainState extends Phaser.State
     @scorableRocks.push rock
 
   _addNewRockObsticle:()->
-    top = Math.random()<.5
+    prob = Math.random()
     group = {}
     physicsData = ""
-    if top
+    if prob > .7
       y = Math.random()* (105 - 30) + 30
       x=850
       group = @stalagmite
       physicsData = "rockGrassDown"
-    else
+      @_addRock(x, y, group, physicsData)
+    else if prob > .4
       x=850
       y = Math.random()* (450 - 375) + 375
       group = @stalactite
       physicsData = "rockGrass"
-    @_addRock(x, y, group, physicsData)
+      @_addRock(x, y, group, physicsData)
+    else if prob > .1
+      y = Math.random()* (105 - 30) + 30
+      x=850
+      group = @stalagmite
+      physicsData = "rockGrassDown"
+      @_addRock(x, y, group, physicsData)
+      x=850
+      y = y+420
+      group = @stalactite
+      physicsData = "rockGrass"
+      @_addRock(x, y, group, physicsData)
+    else
+      #star
     return
 
   _gameOver:(plane, rocks) ->
+    if @score > @highScore then @highScore = @score
+    window.localStorage.setItem('highScore', @highScore)
     @gameEnded = true
     @gameOver.bringToTop()
     @gameOver.visible = true
@@ -162,7 +185,6 @@ class MainState extends Phaser.State
     @game.time.events.remove(@rockTimer)
 
   _restart:() ->
-    gyro.stopTracking()
     @game.time.events.remove(@rockTimer)
     @game.state.start('main')
 
@@ -171,9 +193,6 @@ class MainState extends Phaser.State
       @_up()
     else if (game.input.keyboard.isDown(Phaser.Keyboard.DOWN))
       @_down()
-    else
-      @_steady()
-
     return
 
   _steady:() ->
