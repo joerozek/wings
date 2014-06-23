@@ -8,14 +8,17 @@ class MainState extends Phaser.State
     @game.load.image('foreground', 'assets/images/groundGrass.png')
     @game.load.image('stalactite', 'assets/images/rockGrass.png')
     @game.load.image('getReady', 'assets/images/textGetReady.png')
+    @game.load.image('getReady', 'assets/images/textGetReady.png')
     @game.load.image('gameOver', 'assets/images/textGameOver.png')
     @game.load.image('stalagmite', 'assets/images/rockGrassDown.png')
     @game.load.physics('physicsData', 'assets/images/package.json')
     @game.load.bitmapFont('numbers', 'assets/fonts/numbers.png', 'assets/fonts/numbers.xml')
     @game.load.bitmapFont('alphabet', 'assets/fonts/alphabet.png', 'assets/fonts/alphabet.xml')
 
-
   create: ->
+    @music = @game.add.audio('music',1,true)
+    @marker = @music.addMarker('gameover', 159, 3, 1, false);
+    @music.play('',0,1,true)
     @debugText2 = {}
     @score = 0
     @scorableRocks = []
@@ -35,8 +38,8 @@ class MainState extends Phaser.State
     @countDown = @game.add.bitmapText(360, 260, 'numbers',"#{@count}", 64);
     @gameOver = @game.add.sprite(200,210,'gameOver')
     @gameOver.visible = false
-    @readyTimer = @game.time.events.loop(3000, @_hideGetReady, @)
-    @countDownTimer = @game.time.events.loop(1000, @_countDown, @)
+    @readyTimer = @game.time.events.loop(2250, @_hideGetReady, @)
+    @countDownTimer = @game.time.events.loop(750, @_countDown, @)
 
     @stalagmite = @_createRockGroup('stalagmite')
     @stalactite = @_createRockGroup('stalactite')
@@ -56,7 +59,7 @@ class MainState extends Phaser.State
     , @)
     @_steady()
 
-    @foreground = @game.add.tileSprite 0, 409, 808, 71, 'foreground'
+    @foreground = @game.add.tileSprite 0, 379, 808, 71, 'foreground'
     @foregroundTop = @game.add.tileSprite 800, 71, 808, 71, 'foreground'
     @foregroundTop.angle = 180
     @scoreText =  @game.add.bitmapText(730, 15, 'numbers',"#{@score}", 30)
@@ -77,28 +80,28 @@ class MainState extends Phaser.State
     @_watchForKeyPress()
 
   render:() ->
-    if @gameEnded and @game.input.pointer1.isDown then @_restart()
+    if @gameEnded and (@game.input.pointer1.isDown or @game.input.mousePointer.isDown) then @_restart()
+
 
   _countDown:() ->
-    console.log 'count down'
     @count--
     @countDown.setText("#{@count}" )
     if @count == 1 then @game.time.events.remove(@countDownTimer)
 
   _hideGetReady:() ->
     if gyro.getFeatures().length > 0
-      gyro.calibrate()
       gyro.startTracking (o) =>
-        @debugText.setText("gamma: #{o.gamma.toFixed(1)}")
+#        @debugText.setText("gamma: #{o.gamma.toFixed(1)}")
 #        @debugText.setText("x: #{o.x.toFixed(1)}, y: #{o.y.toFixed(1)} z: #{o.z.toFixed(1)}" )
 #        @debugText2.setText("alpha: #{o.alpha.toFixed(1)}, beta: #{o.beta.toFixed(1)} gamma: #{o.gamma.toFixed(1)}" )
         if o.gamma <= 0 and o.gamma > -20
           @_down()
         else if o.gamma > 0 and o.gamma < 20
           @_up()
+      gyro.calibrate()
 
     @game.time.events.remove(@readyTimer)
-    @rockTimer = @game.time.events.loop(500, @_addNewRockObsticle, @)
+    @rockTimer = @game.time.events.loop(600, @_addNewRockObsticle, @)
     @getReady.visible = false
     @countDown.visible = false
 
@@ -155,31 +158,34 @@ class MainState extends Phaser.State
       @_addRock(x, y, group, physicsData)
     else if prob > .4
       x=850
-      y = Math.random()* (450 - 375) + 375
+      y = Math.random()* (420 - 375) + 375
       group = @stalactite
       physicsData = "rockGrass"
       @_addRock(x, y, group, physicsData)
     else if prob > .1
-      y = Math.random()* (105 - 30) + 30
+      y = Math.random()* (45 - 15) + 15
       x=850
       group = @stalagmite
       physicsData = "rockGrassDown"
       @_addRock(x, y, group, physicsData)
       x=850
-      y = y+420
+      y = y+ Math.random()* (420 - 395) + 395
       group = @stalactite
       physicsData = "rockGrass"
       @_addRock(x, y, group, physicsData)
-    else
+#    else
       #star
     return
 
   _gameOver:(plane, rocks) ->
-    if @score > @highScore then @highScore = @score
-    window.localStorage.setItem('highScore', @highScore)
-    @gameEnded = true
-    @gameOver.bringToTop()
-    @gameOver.visible = true
+    unless @gameEnded
+      @gameEnded = true
+      @music.stop('')
+      @music.play('gameover',0,1,false)
+      if @score > @highScore then @highScore = @score
+      window.localStorage.setItem('highScore', @highScore)
+      @gameOver.bringToTop()
+      @gameOver.visible = true
 
     gyro.stopTracking()
     @game.time.events.remove(@rockTimer)
