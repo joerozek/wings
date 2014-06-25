@@ -6,9 +6,11 @@ class TitleState extends Phaser.State
     @game.load.atlasJSONHash('plane', 'assets/images/planes.png', 'assets/images/plane_fly.json')
     @game.load.atlasJSONHash('phone', 'assets/images/phone.png', 'assets/images/phone_tilt.json')
     @game.load.image('foreground', 'assets/images/groundGrass.png')
-    @game.load.image('foreground', 'assets/images/groundGrass.png')
     @game.load.image('stalactite', 'assets/images/rockGrass.png')
     @game.load.image('getReady', 'assets/images/textGetReady.png')
+    @game.load.image('transparent', 'assets/images/transparent.png')
+    @game.load.image('white', 'assets/images/white.png')
+    @game.load.spritesheet('audioButton', 'assets/images/speaker_on_off.png', 85, 85)
     @game.load.image('gameOver', 'assets/images/textGameOver.png')
     @game.load.image('stalagmite', 'assets/images/rockGrassDown.png')
     @game.load.image('speaker', 'assets/images/speaker_on.png')
@@ -16,16 +18,22 @@ class TitleState extends Phaser.State
     @game.load.physics('physicsData', 'assets/images/package.json')
     @game.load.bitmapFont('numbers', 'assets/fonts/numbers.png', 'assets/fonts/numbers.xml')
     @game.load.bitmapFont('alphabet', 'assets/fonts/alphabet.png', 'assets/fonts/alphabet.xml')
+    @game.load.bitmapFont('alphabet2', 'assets/fonts/alphabet-red.png', 'assets/fonts/alphabet.xml')
     @game.load.audio('music', ['assets/audio/copycat.mp3'])
 
 
+
   create: ->
+    if window.localStorage.getItem('audioSetting')?
+      @soundOff = window.localStorage.getItem('audioSetting')
+    else
+      @soundOff = 0
     @background = @game.add.tileSprite 0, 0, 800, 480, 'background'
     @strings = @game.add.sprite(-527, 180, 'strings')
 #    @strings = @game.add.sprite(573, 180, 'strings')
     @plane = @game.add.sprite(-400, 185, 'plane')
 #    @plane = @game.add.sprite(700, 185, 'plane')
-    @title =  @game.add.bitmapText(-900, 150, 'alphabet',"WINGS", 120)
+    @title =  @game.add.bitmapText(-900, 150, 'alphabet2',"WINGS", 120)
 #    @title =  @game.add.bitmapText(200, 150, 'alphabet',"WINGS", 120)
     @instructions = @game.add.bitmapText(265, 285, 'alphabet',"TAP TO START", 36)
     @instructions2 = @game.add.bitmapText(228, 325, 'alphabet',"TILT PHONE TO FLY", 36)
@@ -37,8 +45,12 @@ class TitleState extends Phaser.State
     @phone.animations.add('tilt')
     @phone.animations.play('tilt', 1, true)
     @phone.alpha = 0
-    @speaker = @game.add.sprite(700, 365, 'speaker')
+    @startButton = @game.add.button(0, 0, 'transparent', @_start, @)
+    @startButton.width = 800
+    @startButton.height = 450
+    @speaker = @game.add.button(700, 365, 'audioButton', @_toggleAudio, @)
     @speaker.alpha = 0
+    @speaker.frame = @soundOff
     @game.add.tween(@title).to({ x: 200 }, 3000, Phaser.Easing.Linear.None).start()
     @game.add.tween(@plane).to({ x: 700 }, 3000, Phaser.Easing.Linear.None)
     .to({x:939}, 1000, Phaser.Easing.Linear.None).start()
@@ -57,8 +69,16 @@ class TitleState extends Phaser.State
       @game.stage.scaleMode = Phaser.StageScaleMode.SHOW_ALL
       @game.stage.scale.setShowAll()
       @game.stage.scale.refresh()
+
   render: ->
-    if @game.input.pointer1.isDown or @game.input.mousePointer.isDown then @_start()
+#    if @game.input.pointer1.isDown or @game.input.mousePointer.isDown then @_start()
+
 
   _start: ->
     @game.state.start('main')
+
+  _toggleAudio:() ->
+    @soundOff++
+    @soundOff = @soundOff % 2
+    window.localStorage.setItem('audioSetting', @soundOff)
+    @speaker.frame = @soundOff

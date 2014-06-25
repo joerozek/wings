@@ -1,25 +1,13 @@
 class MainState extends Phaser.State
   constructor: -> super
 
-  preload: ->
-    @game.load.image('background', 'assets/images/background.png')
-    @game.load.atlasJSONHash('plane', 'assets/images/planes.png', 'assets/images/plane_fly.json')
-    @game.load.image('foreground', 'assets/images/groundGrass.png')
-    @game.load.image('foreground', 'assets/images/groundGrass.png')
-    @game.load.image('stalactite', 'assets/images/rockGrass.png')
-    @game.load.image('getReady', 'assets/images/textGetReady.png')
-    @game.load.image('getReady', 'assets/images/textGetReady.png')
-    @game.load.image('gameOver', 'assets/images/textGameOver.png')
-    @game.load.image('stalagmite', 'assets/images/rockGrassDown.png')
-    @game.load.physics('physicsData', 'assets/images/package.json')
-    @game.load.bitmapFont('numbers', 'assets/fonts/numbers.png', 'assets/fonts/numbers.xml')
-    @game.load.bitmapFont('alphabet', 'assets/fonts/alphabet.png', 'assets/fonts/alphabet.xml')
-
   create: ->
     @music = @game.add.audio('music',1,true)
-    @marker = @music.addMarker('gameover', 159, 3, 1, false);
-    @music.play('',0,1,true)
-    @debugText2 = {}
+    @marker = @music.addMarker('gameover', 159, 1, 1, false);
+    @soundOff = false
+    if (parseInt(window.localStorage.getItem('audioSetting'), 10) == 1) then @soundOff = true
+    @music.play('',0,1,true) unless @soundOff
+
     @score = 0
     @scorableRocks = []
     @gameEnded = false
@@ -33,10 +21,10 @@ class MainState extends Phaser.State
     @rockCollisionGroup = game.physics.p2.createCollisionGroup()
     @game.physics.p2.updateBoundsCollisionGroup()
     @background = @game.add.tileSprite 0, 0, 800, 480, 'background'
-    @getReady = @game.add.sprite(200,190,'getReady')
+    @getReady = @game.add.sprite(200,160,'getReady')
     @count = 3
-    @countDown = @game.add.bitmapText(360, 260, 'numbers',"#{@count}", 64);
-    @gameOver = @game.add.sprite(200,210,'gameOver')
+    @countDown = @game.add.bitmapText(360, 260, 'numbers',"#{@count}", 64)
+    @gameOver = @game.add.sprite(200,160,'gameOver')
     @gameOver.visible = false
     @readyTimer = @game.time.events.loop(2250, @_hideGetReady, @)
     @countDownTimer = @game.time.events.loop(750, @_countDown, @)
@@ -65,8 +53,6 @@ class MainState extends Phaser.State
     @scoreText =  @game.add.bitmapText(730, 15, 'numbers',"#{@score}", 30)
     @highScoreLabel =  @game.add.bitmapText(20, 15, 'alphabet',"HIGH SCORE", 32)
     @highScoreText =  @game.add.bitmapText(220, 17, 'numbers',"#{@highScore}", 30)
-#    @debugText = @game.add.text(5, 5, "no gyro yet")
-#    @debugText2 = @game.add.text(5, 35, "no gyro yet")
     if @game.scaleToFit
       @game.stage.scaleMode = Phaser.StageScaleMode.SHOW_ALL
       @game.stage.scale.setShowAll()
@@ -79,10 +65,6 @@ class MainState extends Phaser.State
     @_updateScore() unless @gameEnded
     @_watchForKeyPress()
 
-  render:() ->
-    if @gameEnded and (@game.input.pointer1.isDown or @game.input.mousePointer.isDown) then @_restart()
-
-
   _countDown:() ->
     @count--
     @countDown.setText("#{@count}" )
@@ -91,9 +73,6 @@ class MainState extends Phaser.State
   _hideGetReady:() ->
     if gyro.getFeatures().length > 0
       gyro.startTracking (o) =>
-#        @debugText.setText("gamma: #{o.gamma.toFixed(1)}")
-#        @debugText.setText("x: #{o.x.toFixed(1)}, y: #{o.y.toFixed(1)} z: #{o.z.toFixed(1)}" )
-#        @debugText2.setText("alpha: #{o.alpha.toFixed(1)}, beta: #{o.beta.toFixed(1)} gamma: #{o.gamma.toFixed(1)}" )
         if o.gamma <= 0 and o.gamma > -20
           @_down()
         else if o.gamma > 0 and o.gamma < 20
@@ -181,11 +160,19 @@ class MainState extends Phaser.State
     unless @gameEnded
       @gameEnded = true
       @music.stop('')
-      @music.play('gameover',0,1,false)
+      @music.play('gameover',0,1,false) unless @soundOff
       if @score > @highScore then @highScore = @score
       window.localStorage.setItem('highScore', @highScore)
       @gameOver.bringToTop()
       @gameOver.visible = true
+      restartButton = @game.add.button(440, 260, 'transparent', @_restart, @)
+      restartButton.width = 160
+      restartButton.height = 40
+      backButton = @game.add.button(240, 260, 'transparent', @_title, @)
+      backButton.width = 100
+      backButton.height = 40
+      @restartText = @game.add.bitmapText(440, 260, 'alphabet2', "RESTART")
+      @backText = @game.add.bitmapText(240, 260, 'alphabet2', "BACK")
 
     gyro.stopTracking()
     @game.time.events.remove(@rockTimer)
@@ -193,6 +180,10 @@ class MainState extends Phaser.State
   _restart:() ->
     @game.time.events.remove(@rockTimer)
     @game.state.start('main')
+
+  _title:() ->
+    @game.time.events.remove(@rockTimer)
+    @game.state.start('title')
 
   _watchForKeyPress:() ->
     if @game.input.keyboard.isDown(Phaser.Keyboard.UP)
@@ -207,12 +198,9 @@ class MainState extends Phaser.State
     @plane.rotation = 0
 
   _up:() ->
-#    @plane.body.velocity.x = -75
     @plane.body.velocity.y = -200
     @plane.body.angle = -10
 
-
    _down:() ->
-#    @plane.body.velocity.x = 75
     @plane.body.velocity.y = 200
     @plane.body.angle = 10
