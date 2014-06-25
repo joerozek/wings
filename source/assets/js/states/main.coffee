@@ -171,8 +171,8 @@ class MainState extends Phaser.State
       backButton = @game.add.button(240, 260, 'transparent', @_title, @)
       backButton.width = 100
       backButton.height = 40
-      @restartText = @game.add.bitmapText(440, 260, 'alphabet2', "RESTART")
-      @backText = @game.add.bitmapText(240, 260, 'alphabet2', "BACK")
+      @restartText = @game.add.bitmapText(440, 260, 'alphabet-red', "RESTART")
+      @backText = @game.add.bitmapText(240, 260, 'alphabet-red', "BACK")
 
     gyro.stopTracking()
     @game.time.events.remove(@rockTimer)
