@@ -45,10 +45,12 @@
 	/**
 	 * @public
 	 */
+    window.gyro = gyro;
 	gyro.frequency = 500; //ms
 
 	gyro.calibrate = function() {
 		for (var i in measurements) {
+
 			calibration[i] = (typeof measurements[i] === 'number') ? measurements[i] : 0;
 		}
 	};
@@ -64,6 +66,14 @@
 	};
 
 	gyro.stopTracking = function() {
+        calibration = {
+            x: 0,
+            y: 0,
+            z: 0,
+            alpha: 0,
+            beta: 0,
+            gamma: 0
+        };
 		clearInterval(interval);
 	};
 

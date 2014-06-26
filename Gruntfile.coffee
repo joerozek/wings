@@ -14,6 +14,7 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks('grunt-contrib-watch')
   grunt.loadNpmTasks('grunt-express')
   grunt.loadNpmTasks('grunt-open')
+  grunt.loadNpmTasks('grunt-phonegap')
 
   # Define Tasks
   grunt.registerTask('default', ['build', 'server'])
@@ -23,6 +24,7 @@ module.exports = (grunt) ->
   grunt.registerTask('server', ['express', 'open', 'watch'])
   grunt.registerTask('stylesheets', ['stylus', 'autoprefixer', 'cssmin', 'clean:stylesheets'])
 
+  pkg = grunt.file.readJSON('package.json')
   # Config
   grunt.config.init
     pkg: grunt.file.readJSON('package.json')
@@ -50,7 +52,7 @@ module.exports = (grunt) ->
     coffee:
       build:
         options:
-          bare: true
+          bare: false
           join: true
         expand: true
         files:
@@ -145,3 +147,98 @@ module.exports = (grunt) ->
       copy:
         files: [ 'source/**', '!source/**/*.styl', '!source/**/*.coffee', '!source/**/*.jade' ]
         tasks: [ 'copy' ]
+
+    phonegap:
+      config:
+        root: 'www'
+        config:
+          template: '_myConfig.xml'
+          data:
+            id: 'com.arisota'
+            version: pkg.version
+            name: pkg.name
+          cordova: '.cordova'
+          html : 'index.html' # (Optional) You may change this to any other.html
+          path: 'phonegap'
+          plugins: []
+          platforms: ['android']
+          maxBuffer: 200 # You may need to raise this for iOS.
+          verbose: false
+          releases: 'releases'
+          releaseName: ->
+            pkg.name + '-' + pkg.version
+          debuggable: false
+
+          # Must be set for ios to work.
+          #Should return the app name.
+          name: ->
+            pkg = grunt.file.readJSON('package.json')
+            pkg.name
+
+          # Add a key if you plan to use the `release:android` task
+          # See http://developer.android.com/tools/publishing/app-signing.html
+          key:
+            store: 'release.keystore'
+            alias: 'release'
+            aliasPassword: ->
+              #Prompt, read an environment variable, or just embed as a string literal
+              ''
+
+            storePassword: ->
+              # Prompt, read an environment variable, or just embed as a string literal
+              ''
+
+          # Set an app icon at various sizes (optional)
+          icons:
+            android:
+              ldpi: 'icon-36-ldpi.png'
+              mdpi: 'icon-48-mdpi.png'
+              hdpi: 'icon-72-hdpi.png'
+              xhdpi: 'icon-96-xhdpi.png'
+    #      wp8: {
+    #        app: 'icon-62-tile.png',
+    #        tile: 'icon-173-tile.png'
+    #      },
+    #      ios: {
+    #        icon29: 'icon29.png',
+    #        icon29x2: 'icon29x2.png',
+    #        icon40: 'icon40.png',
+    #        icon40x2: 'icon40x2.png',
+    #        icon57: 'icon57.png',
+    #        icon57x2: 'icon57x2.png',
+    #        icon60x2: 'icon60x2.png',
+    #        icon72: 'icon72.png',
+    #        icon72x2: 'icon72x2.png',
+    #        icon76: 'icon76.png',
+    #        icon76x2: 'icon76x2.png'
+    #      }
+    #    },
+
+
+        # Android-only integer version to increase with each release.
+        # See http://developer.android.com/tools/publishing/versioning.html
+        versionCode: -> 1
+
+        # Android-only options that will override the defaults set by Phonegap in the
+        # generated AndroidManifest.xml
+        # See https://developer.android.com/guide/topics/manifest/uses-sdk-element.html
+        minSdkVersion: -> 10
+        targetSdkVersion: -> 19
+
+        # iOS7-only options that will make the status bar white and transparent
+        #iosStatusBar: 'WhiteAndTransparent',
+
+    #    // If you want to use the Phonegap Build service to build one or more
+    #    // of the platforms specified above, include these options.
+    #    // See https://build.phonegap.com/
+    #  remote: {
+    #    username: 'your_username',
+    #    password: 'your_password',
+    #    platforms: ['android', 'blackberry', 'ios', 'symbian', 'webos', 'wp7']
+    #  },
+    #
+    #    // Set an explicit Android permissions list to override the automatic plugin defaults.
+    #    // In most cases, you should omit this setting. See 'Android Permissions' in README.md for details.
+    #  permissions: ['INTERNET', 'ACCESS_COURSE_LOCATION', '...']
+    #    }
+    #    }
