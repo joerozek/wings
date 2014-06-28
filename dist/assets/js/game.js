@@ -298,9 +298,9 @@
       this.game.load.bitmapFont('numbers', 'assets/fonts/numbers.png', 'assets/fonts/numbers.xml');
       this.game.load.bitmapFont('alphabet', 'assets/fonts/alphabet.png', 'assets/fonts/alphabet.xml');
       this.game.load.bitmapFont('alphabet-red', 'assets/fonts/alphabet-red.png', 'assets/fonts/alphabet.xml');
-      this.game.stage.scaleMode = Phaser.StageScaleMode.SHOW_ALL;
-      this.game.stage.scale.setShowAll();
-      return this.game.stage.scale.refresh();
+      this.audio = new Media('assets/audio/copycat.mp3');
+      this.game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+      return this.game.scale.setScreenSize();
     };
 
     TitleState.prototype.create = function() {
@@ -359,11 +359,16 @@
       }, 3000, Phaser.Easing.Linear.None).to({
         alpha: 1
       }, 300, Phaser.Easing.Linear.None).start();
-      return this.game.add.tween(this.speaker).to({
+      this.game.add.tween(this.speaker).to({
         alpha: 0
       }, 3000, Phaser.Easing.Linear.None).to({
         alpha: 1
       }, 300, Phaser.Easing.Linear.None).start();
+      if (this.game.scaleToFit) {
+        this.game.stage.scaleMode = Phaser.StageScaleMode.SHOW_ALL;
+        this.game.stage.scale.setShowAll();
+        return this.game.stage.scale.refresh();
+      }
     };
 
     TitleState.prototype.render = function() {};

@@ -2,8 +2,6 @@ class MainState extends Phaser.State
   constructor: -> super
 
   create: ->
-#    @music = @game.add.audio('music',1,true)
-#    @marker = @music.addMarker('gameover', 159, 1, 1, false);
     @soundOff = false
     if (parseInt(window.localStorage.getItem('audioSetting'), 10) == 1) then @soundOff = true
     unless @soundOff
