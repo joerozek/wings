@@ -8,4 +8,5 @@
     <name><%= name %></name>
 
     <!-- ... -->
+    <preference name="Orientation" value="landscape" />
 </widget>

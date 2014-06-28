@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="com.arisota.wing" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>Wings</name>
+    <description>
+        Airplane game, avoid rocks, keep going...
+    </description>
+    <author email="jrozek@gmail.com" href="http://cordova.io">
+        Arisota Studios
+    </author>
+    <content src="index.html" />
+    <access origin="*" />
+    <!--<preference name="Fullscreen" value="true" />-->
+    <preference name="Orientation" value="landscape" />
+</widget>

@@ -2,11 +2,13 @@ class MainState extends Phaser.State
   constructor: -> super
 
   create: ->
-    @music = @game.add.audio('music',1,true)
-    @marker = @music.addMarker('gameover', 159, 1, 1, false);
+#    @music = @game.add.audio('music',1,true)
+#    @marker = @music.addMarker('gameover', 159, 1, 1, false);
     @soundOff = false
     if (parseInt(window.localStorage.getItem('audioSetting'), 10) == 1) then @soundOff = true
-    @music.play('',0,1,true) unless @soundOff
+    unless @soundOff
+      @audio = new Media('/android_asset/www/assets/audio/copycat.mp3')
+      @audio.play()
 
     @score = 0
     @scorableRocks = []
@@ -32,7 +34,7 @@ class MainState extends Phaser.State
     @stalagmite = @_createRockGroup('stalagmite')
     @stalactite = @_createRockGroup('stalactite')
 
-    @plane = @game.add.sprite(100, 200, 'plane')
+    @plane = @game.add.sprite(100, 201, 'plane')
     @plane.events.onOutOfBounds.add(@_gameOver, @)
     @game.physics.p2.enable(@plane)
     @plane.body.clearShapes()
@@ -63,7 +65,7 @@ class MainState extends Phaser.State
     @foreground.tilePosition.x += -6.75
     @foregroundTop.tilePosition.x += 6.75
     @_updateScore() unless @gameEnded
-    @_watchForKeyPress()
+#    @_watchForKeyPress()
 
   _countDown:() ->
     @count--
@@ -159,8 +161,13 @@ class MainState extends Phaser.State
   _gameOver:(plane, rocks) ->
     unless @gameEnded
       @gameEnded = true
-      @music.stop('')
-      @music.play('gameover',0,1,false) unless @soundOff
+      unless @soundOff
+        @audio.seekTo(159000)
+        setTimeout(=>
+          @audio.stop()
+          @audio.release()
+        , 1000)
+#      @music.play('gameover',0,1,false) unless @soundOff
       if @score > @highScore then @highScore = @score
       window.localStorage.setItem('highScore', @highScore)
       @gameOver.bringToTop()

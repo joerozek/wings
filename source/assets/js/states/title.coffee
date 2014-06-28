@@ -13,11 +13,17 @@ class TitleState extends Phaser.State
     @game.load.image('gameOver', 'assets/images/textGameOver.png')
     @game.load.image('stalagmite', 'assets/images/rockGrassDown.png')
     @game.load.image('strings', 'assets/images/strings.png')
-    @game.load.physics('physicsData', 'assets/images/package.json')
+    @game.load.physics('physicsData', 'assets/images/physics-simple.json')
     @game.load.bitmapFont('numbers', 'assets/fonts/numbers.png', 'assets/fonts/numbers.xml')
     @game.load.bitmapFont('alphabet', 'assets/fonts/alphabet.png', 'assets/fonts/alphabet.xml')
     @game.load.bitmapFont('alphabet-red', 'assets/fonts/alphabet-red.png', 'assets/fonts/alphabet.xml')
-    @game.load.audio('music', ['assets/audio/copycat.mp3'])
+    @audio = new Media('assets/audio/copycat.mp3')
+#    @game.load.audio('music', ['assets/audio/copycat.mp3'])
+#    @game.scale.maxWidth = 1720
+#    @game.scale.maxHeight = 1080
+
+    @game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL
+    @game.scale.setScreenSize()
 
 
 

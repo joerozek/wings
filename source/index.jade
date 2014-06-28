@@ -2,8 +2,15 @@
 html
   head
     title Wings
-    link(rel='stylesheet', href='/assets/css/game.css')
-    script(src='/gyro.js/js/gyro.js')
-    script(src='/assets/js/phaser.min.js')
-    script(src='/assets/js/game.js')
+    meta(name="viewport", content="initial-scale=1")
+    link(rel='stylesheet', href='assets/css/game.css')
+    script.
+        var windowWidth = window.innerWidth;
+        var windowHeight = window.innerHeight;
+        var pixelRatio = window.devicePixelRatio || 1; /// get pixel ratio of device
+        console.log("width: " + windowWidth + " height: " + windowHeight + " ratio: " + pixelRatio);
+    script(src='cordova.js')
+    script(src='assets/js/gyro.js')
+    script(src='assets/js/phaser.js')
+    script(src='assets/js/game.js')
   body

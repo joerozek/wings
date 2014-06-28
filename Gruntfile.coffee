@@ -15,11 +15,13 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks('grunt-express')
   grunt.loadNpmTasks('grunt-open')
   grunt.loadNpmTasks('grunt-phonegap')
+  grunt.loadNpmTasks('grunt-cordovacli')
 
   # Define Tasks
-  grunt.registerTask('default', ['build', 'server'])
-  grunt.registerTask('build', ['clean:build', 'copy', 'stylesheets', 'scripts', 'jade'])
-  grunt.registerTask('release', ['build', 'uglify', 'clean:release'])
+  grunt.registerTask('default', ['dist', 'server'])
+  grunt.registerTask('cordova', ['dist', 'clean:www', 'copy:cordova'])
+  grunt.registerTask('dist', ['clean:dist', 'copy:dist', 'copy:phaser', 'copy:gyro', 'stylesheets', 'scripts', 'jade'])
+  grunt.registerTask('release', ['dist', 'uglify', 'clean:release'])
   grunt.registerTask('scripts', ['coffee', 'concat', 'clean:scripts'])
   grunt.registerTask('server', ['express', 'open', 'watch'])
   grunt.registerTask('stylesheets', ['stylus', 'autoprefixer', 'cssmin', 'clean:stylesheets'])
@@ -30,66 +32,76 @@ module.exports = (grunt) ->
     pkg: grunt.file.readJSON('package.json')
 
     autoprefixer:
-      build:
+      dist:
         expand: true
-        cwd: 'build'
+        cwd: 'dist'
         src: [ '**/*.css' ]
-        dest: 'build'
+        dest: 'dist'
 
     clean:
       all:
         scripts:
-          src: [ 'build/assets/js/**/*' ]
+          src: [ 'dist/assets/js/**/*' ]
         stylesheets:
-          src: [ 'build/assets/css/**/*' ]
-      build:
-        src: ['build']
+          src: [ 'dist/assets/css/**/*' ]
+      dist:
+        src: ['dist']
       scripts:
-        src: [ 'build/assets/js/**/*', '!build/assets/js/game.js', '!build/assets/js/phaser.*' ]
+        src: [ 'dist/assets/js/**/*', '!dist/assets/js/game.js', '!dist/assets/js/phaser.*', '!dist/assets/js/gyro.js']
       stylesheets:
-        src: [ 'build/assets/css/**/*', '!build/assets/css/game.css' ]
+        src: [ 'dist/assets/css/**/*', '!dist/assets/css/game.css' ]
+      cordova:
+        src: ['cordovaDist']
+      www:
+        src: ['cordovaDist/www/**/*']
 
     coffee:
-      build:
+      dist:
         options:
           bare: false
           join: true
         expand: true
         files:
-          'build/assets/js/game.js': [ 'source/assets/js/**/*.coffee' ]
+          'dist/assets/js/game.js': [ 'source/assets/js/**/*.coffee' ]
 
     concat:
-      build:
-        src: [ 'build/**/*.js', '!build/assets/js/phaser.*', 'builfd' ]
-        dest: 'build/assets/js/game.js'
+      dist:
+        src: [ 'dist/**/*.js', '!dist/assets/js/phaser.*' ]
+        dest: 'dist/assets/js/game.js'
 
     copy:
-      build:
+      dist:
         cwd: 'source'
         src: ['**', '!**/*.styl', '!**/*.coffee', '!**/*.jade']
-        dest: 'build'
+        dest: 'dist'
         expand: true
       phaser:
         cwd: 'node_modules/Phaser/build'
         src: ['*.js']
-        dest: 'build/assets/js'
+        dest: 'dist/assets/js'
         expand: true
       gyro:
-        cwd: 'node_modules/Phaser/build'
-        src: ['*.js']
-        dest: 'build/assets/js'
+        cwd: 'bower_components/gyro.js/js'
+        src: ['gyro.js']
+        dest: 'dist/assets/js'
         expand: true
+      cordova:
+        cwd: 'dist'
+        src: ['**/*.*']
+        dest:'cordovaDist/www'
+        expand:true
+
     cssmin:
-      build:
+      dist:
         files:
-          'build/assets/css/game.css': [ 'build/**/*.css' ]
+          'dist/assets/css/game.css': [ 'dist/**/*.css' ]
 
     express:
       server:
         options:
           port: 8000
           hostname: "*"
-          bases: [ 'build', 'bower_components' ]
+          bases: [ 'dist' ]
           livereload: true
 
     jade:
@@ -100,16 +112,16 @@ module.exports = (grunt) ->
           expand: true
           cwd: 'source'
           src: [ '**/*.jade' ]
-          dest: 'build'
+          dest: 'dist'
           ext: '.html'
         }]
 
     open:
-      build:
+      dist:
         path: 'http://localhost:<%= express.server.options.port%>'
 
     stylus:
-      build:
+      dist:
         options:
           linenos: true
           compress: false
@@ -117,16 +129,16 @@ module.exports = (grunt) ->
           expand: true
           cwd: 'source'
           src: [ '**/*.styl' ]
-          dest: 'build'
+          dest: 'dist'
           ext: '.css'
         }]
 
     uglify:
-      build:
+      dist:
         options:
           mangle: false
         files:
-          'build/assets/js/game.js': [ 'build/**/*.js' ]
+          'dist/assets/js/game.js': [ 'dist/**/*.js' ]
 
     watch:
       stylesheets:
@@ -148,9 +160,23 @@ module.exports = (grunt) ->
         files: [ 'source/**', '!source/**/*.styl', '!source/**/*.coffee', '!source/**/*.jade' ]
         tasks: [ 'copy' ]
 
+    cordovacli:
+      options:
+        path: 'cordovaDist'
+      create:
+        options:
+          command: ['create','platform','plugin']
+          platforms: ['android']
+          plugins: []
+          id: 'com.arisota'
+          name: 'Wings'
+          description:"Wings - avoid rocks, don't crash"
+
+
+
     phonegap:
       config:
-        root: 'www'
+        root: 'dist'
         config:
           template: '_myConfig.xml'
           data:
@@ -167,7 +193,7 @@ module.exports = (grunt) ->
           releases: 'releases'
           releaseName: ->
             pkg.name + '-' + pkg.version
-          debuggable: false
+          debuggable: true
 
           # Must be set for ios to work.
           #Should return the app name.

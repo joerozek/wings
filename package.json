@@ -25,6 +25,7 @@
     "grunt-contrib-concat": "~0.3.0",
     "coffee-script": "~1.6.3",
     "obfuscator": "~0.2.2",
-    "grunt-phonegap": "~0.15.2"
+    "grunt-phonegap": "~0.15.2",
+    "grunt-cordovacli": "~0.4.0"
   }
 }

@@ -1,0 +1,19 @@
+{"frames": [
+
+    {
+        "filename": "tilt00",
+        "frame": {"x":0,"y":0,"w":75,"h":37},
+        "rotated": false,
+        "trimmed": true,
+        "spriteSourceSize": {"x":0,"y":2,"w":56,"h":60},
+        "sourceSize": {"w":88,"h":73}
+    },
+    {
+        "filename": "tilt01",
+        "frame": {"x":0,"y":41,"w":75,"h":37},
+        "rotated": false,
+        "trimmed": true,
+        "spriteSourceSize": {"x":0,"y":3,"w":56,"h":58},
+        "sourceSize": {"w":88,"h":73}
+    }]
+}

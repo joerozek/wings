@@ -1,0 +1,47 @@
+	{ 
+		
+		"planeRed1": [
+			
+				{
+					"density": 2, "friction": 0, "bounce": 0, 
+					"filter": { "categoryBits": 1, "maskBits": 65535 },
+					"shape": [   68, 13  ,  65, 18  ,  70, 2  ]
+				}   ,
+				{
+					"density": 2, "friction": 0, "bounce": 0, 
+					"filter": { "categoryBits": 1, "maskBits": 65535 },
+					"shape": [   30, 17  ,  22, 47  ,  3, 31  ,  0, 15  ]
+				}  ,
+				{
+					"density": 2, "friction": 0, "bounce": 0, 
+					"filter": { "categoryBits": 1, "maskBits": 65535 },
+					"shape": [   55, 73  ,  22, 65  ,  22, 47  ,  30, 17  ,  65, 14  ,  85, 17  ,  86, 65  ]
+				}  ,
+				{
+					"density": 2, "friction": 0, "bounce": 0, 
+					"filter": { "categoryBits": 1, "maskBits": 65535 },
+					"shape": [   71, 0  ,  65, 14  ,  30, 17  ,  24, 0  ]
+				}  
+		]
+		
+		, 
+		"rockGrassDown": [
+			
+				{
+					"density": 2, "friction": 0, "bounce": 0, 
+					"filter": { "categoryBits": 1, "maskBits": 65535 },
+					"shape": [   62, 238  ,  2, 2  ,  110, 2  ]
+				}  
+		]
+		
+		, 
+		"rockGrass": [
+			
+				{
+					"density": 2, "friction": 0, "bounce": 0, 
+					"filter": { "categoryBits": 1, "maskBits": 65535 },
+					"shape": [   0, 239  ,  64, 0  ,  110, 237  ]
+				}  
+		]
+		
+	}

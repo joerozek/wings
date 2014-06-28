@@ -1,0 +1,20 @@
+{"frames": [
+
+    {
+
+        "filename": "fly00",
+        "frame": {"x":88,"y":0,"w":88,"h":73},
+        "rotated": false,
+        "trimmed": true,
+        "spriteSourceSize": {"x":0,"y":2,"w":56,"h":60},
+        "sourceSize": {"w":88,"h":73}
+    },
+    {
+        "filename": "fly01",
+        "frame": {"x":0,"y":438,"w":88,"h":73},
+        "rotated": false,
+        "trimmed": true,
+        "spriteSourceSize": {"x":0,"y":3,"w":56,"h":58},
+        "sourceSize": {"w":88,"h":73}
+    }]
+}
