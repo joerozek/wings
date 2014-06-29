@@ -4,9 +4,9 @@ class MainState extends Phaser.State
   create: ->
     @soundOff = false
     if (parseInt(window.localStorage.getItem('audioSetting'), 10) == 1) then @soundOff = true
-    unless @soundOff
-      @audio = new Media('/android_asset/www/assets/audio/copycat.mp3')
-      @audio.play()
+    @_initAudio()
+    document.addEventListener("pause", @_onPause, false)
+    document.addEventListener("resume", @_onResume, false)
 
     @score = 0
     @scorableRocks = []
@@ -63,11 +63,22 @@ class MainState extends Phaser.State
     @foreground.tilePosition.x += -6.75
     @foregroundTop.tilePosition.x += 6.75
     @_updateScore() unless @gameEnded
-#    @_watchForKeyPress()
+
+  _onPause:() =>
+    @audio?.pause()
+
+  _onResume:() =>
+    @audio?.play()
+
+  _initAudio:() ->
+    unless @soundOff
+      @audio = new Media('/android_asset/www/assets/audio/copycat.mp3')
+      @audio.play()
 
   _countDown:() ->
     @count--
     @countDown.setText("#{@count}" )
+
     if @count == 1 then @game.time.events.remove(@countDownTimer)
 
   _hideGetReady:() ->
@@ -81,8 +92,10 @@ class MainState extends Phaser.State
 
     @game.time.events.remove(@readyTimer)
     @rockTimer = @game.time.events.loop(600, @_addNewRockObsticle, @)
-    @getReady.visible = false
+    @getReady.kill()
     @countDown.visible = false
+    @countDown = null
+    @getReady = null
 
   _createRockGroup:(name, physicsData) ->
     group = @game.add.group()
@@ -165,7 +178,7 @@ class MainState extends Phaser.State
           @audio.stop()
           @audio.release()
         , 1000)
-#      @music.play('gameover',0,1,false) unless @soundOff
+
       if @score > @highScore then @highScore = @score
       window.localStorage.setItem('highScore', @highScore)
       @gameOver.bringToTop()
@@ -189,13 +202,6 @@ class MainState extends Phaser.State
   _title:() ->
     @game.time.events.remove(@rockTimer)
     @game.state.start('title')
-
-  _watchForKeyPress:() ->
-    if @game.input.keyboard.isDown(Phaser.Keyboard.UP)
-      @_up()
-    else if (game.input.keyboard.isDown(Phaser.Keyboard.DOWN))
-      @_down()
-    return
 
   _steady:() ->
     @plane.body.velocity.x = 0

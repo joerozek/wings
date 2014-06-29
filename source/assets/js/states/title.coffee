@@ -17,15 +17,9 @@ class TitleState extends Phaser.State
     @game.load.bitmapFont('numbers', 'assets/fonts/numbers.png', 'assets/fonts/numbers.xml')
     @game.load.bitmapFont('alphabet', 'assets/fonts/alphabet.png', 'assets/fonts/alphabet.xml')
     @game.load.bitmapFont('alphabet-red', 'assets/fonts/alphabet-red.png', 'assets/fonts/alphabet.xml')
-    @audio = new Media('assets/audio/copycat.mp3')
-#    @game.load.audio('music', ['assets/audio/copycat.mp3'])
-#    @game.scale.maxWidth = 1720
-#    @game.scale.maxHeight = 1080
 
     @game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL
     @game.scale.setScreenSize()
-
-
 
   create: ->
     if window.localStorage.getItem('audioSetting')?
@@ -33,19 +27,19 @@ class TitleState extends Phaser.State
     else
       @soundOff = 0
     @background = @game.add.tileSprite 0, 0, 800, 480, 'background'
-    @strings = @game.add.sprite(-527, 180, 'strings')
+    @strings = @game.add.sprite(-527, 130, 'strings')
 #    @strings = @game.add.sprite(573, 180, 'strings')
-    @plane = @game.add.sprite(-400, 185, 'plane')
+    @plane = @game.add.sprite(-400, 135, 'plane')
 #    @plane = @game.add.sprite(700, 185, 'plane')
-    @title =  @game.add.bitmapText(-900, 150, 'alphabet-red',"WINGS", 120)
+    @title =  @game.add.bitmapText(-900, 100, 'alphabet-red',"WINGS", 120)
 #    @title =  @game.add.bitmapText(200, 150, 'alphabet',"WINGS", 120)
-    @instructions = @game.add.bitmapText(265, 285, 'alphabet',"TAP TO START", 36)
-    @instructions2 = @game.add.bitmapText(228, 325, 'alphabet',"TILT PHONE TO FLY", 36)
+    @instructions = @game.add.bitmapText(265, 235, 'alphabet',"TAP TO START", 36)
+    @instructions2 = @game.add.bitmapText(228, 275, 'alphabet',"TILT PHONE TO FLY", 36)
     @instructions.alpha = 0
     @instructions2.alpha = 0
     @plane.animations.add('fly')
     @plane.animations.play('fly', 15, true)
-    @phone = @game.add.sprite(362, 385, 'phone')
+    @phone = @game.add.sprite(362, 335, 'phone')
     @phone.animations.add('tilt')
     @phone.animations.play('tilt', 1, true)
     @phone.alpha = 0

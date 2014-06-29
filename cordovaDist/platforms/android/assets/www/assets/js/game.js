@@ -1,7 +1,8 @@
 (function() {
   var LogoSprite, MainState, TitleState,
     __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   window.onload = function() {
     this.game = new Phaser.Game(800, 450, Phaser.CANVAS);
@@ -28,6 +29,8 @@
     __extends(MainState, _super);
 
     function MainState() {
+      this._onResume = __bind(this._onResume, this);
+      this._onPause = __bind(this._onPause, this);
       MainState.__super__.constructor.apply(this, arguments);
     }
 
@@ -37,10 +40,9 @@
       if (parseInt(window.localStorage.getItem('audioSetting'), 10) === 1) {
         this.soundOff = true;
       }
-      if (!this.soundOff) {
-        this.audio = new Media('/android_asset/www/assets/audio/copycat.mp3');
-        this.audio.play();
-      }
+      this._initAudio();
+      document.addEventListener("pause", this._onPause, false);
+      document.addEventListener("resume", this._onResume, false);
       this.score = 0;
       this.scorableRocks = [];
       this.gameEnded = false;
@@ -97,6 +99,23 @@
       }
     };
 
+    MainState.prototype._onPause = function() {
+      var _ref;
+      return (_ref = this.audio) != null ? _ref.pause() : void 0;
+    };
+
+    MainState.prototype._onResume = function() {
+      var _ref;
+      return (_ref = this.audio) != null ? _ref.play() : void 0;
+    };
+
+    MainState.prototype._initAudio = function() {
+      if (!this.soundOff) {
+        this.audio = new Media('/android_asset/www/assets/audio/copycat.mp3');
+        return this.audio.play();
+      }
+    };
+
     MainState.prototype._countDown = function() {
       this.count--;
       this.countDown.setText("" + this.count);
@@ -119,8 +138,10 @@
       }
       this.game.time.events.remove(this.readyTimer);
       this.rockTimer = this.game.time.events.loop(600, this._addNewRockObsticle, this);
-      this.getReady.visible = false;
-      return this.countDown.visible = false;
+      this.getReady.kill();
+      this.countDown.visible = false;
+      this.countDown = null;
+      return this.getReady = null;
     };
 
     MainState.prototype._createRockGroup = function(name, physicsData) {
@@ -247,14 +268,6 @@
       return this.game.state.start('title');
     };
 
-    MainState.prototype._watchForKeyPress = function() {
-      if (this.game.input.keyboard.isDown(Phaser.Keyboard.UP)) {
-        this._up();
-      } else if (game.input.keyboard.isDown(Phaser.Keyboard.DOWN)) {
-        this._down();
-      }
-    };
-
     MainState.prototype._steady = function() {
       this.plane.body.velocity.x = 0;
       this.plane.body.velocity.y = 0;
@@ -298,7 +311,6 @@
       this.game.load.bitmapFont('numbers', 'assets/fonts/numbers.png', 'assets/fonts/numbers.xml');
       this.game.load.bitmapFont('alphabet', 'assets/fonts/alphabet.png', 'assets/fonts/alphabet.xml');
       this.game.load.bitmapFont('alphabet-red', 'assets/fonts/alphabet-red.png', 'assets/fonts/alphabet.xml');
-      this.audio = new Media('assets/audio/copycat.mp3');
       this.game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
       return this.game.scale.setScreenSize();
     };
@@ -310,16 +322,16 @@
         this.soundOff = 0;
       }
       this.background = this.game.add.tileSprite(0, 0, 800, 480, 'background');
-      this.strings = this.game.add.sprite(-527, 180, 'strings');
-      this.plane = this.game.add.sprite(-400, 185, 'plane');
-      this.title = this.game.add.bitmapText(-900, 150, 'alphabet-red', "WINGS", 120);
-      this.instructions = this.game.add.bitmapText(265, 285, 'alphabet', "TAP TO START", 36);
-      this.instructions2 = this.game.add.bitmapText(228, 325, 'alphabet', "TILT PHONE TO FLY", 36);
+      this.strings = this.game.add.sprite(-527, 130, 'strings');
+      this.plane = this.game.add.sprite(-400, 135, 'plane');
+      this.title = this.game.add.bitmapText(-900, 100, 'alphabet-red', "WINGS", 120);
+      this.instructions = this.game.add.bitmapText(265, 235, 'alphabet', "TAP TO START", 36);
+      this.instructions2 = this.game.add.bitmapText(228, 275, 'alphabet', "TILT PHONE TO FLY", 36);
       this.instructions.alpha = 0;
       this.instructions2.alpha = 0;
       this.plane.animations.add('fly');
       this.plane.animations.play('fly', 15, true);
-      this.phone = this.game.add.sprite(362, 385, 'phone');
+      this.phone = this.game.add.sprite(362, 335, 'phone');
       this.phone.animations.add('tilt');
       this.phone.animations.play('tilt', 1, true);
       this.phone.alpha = 0;
